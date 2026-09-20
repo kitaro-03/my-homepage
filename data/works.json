@@ -1,0 +1,68 @@
+{
+  "$comment": "制作物の一覧。新しい作品はこの works 配列に1件追加するだけでトップページのカードが増えます。スキーマの説明は data/README.md を参照。",
+  "works": [
+    {
+      "id": "sample-dodge",
+      "title": "Dodge Sample",
+      "summary": "落ちてくるブロックをよけるだけの小さなブラウザゲーム。埋め込み表示（type: embed）の動作確認用サンプルです。",
+      "type": "embed",
+      "year": "2026",
+      "status": "sample",
+      "tags": ["JavaScript", "Canvas", "ミニゲーム"],
+      "thumbnail": "",
+      "embed": {
+        "src": "games/sample-dodge/index.html",
+        "aspect": "4 / 3",
+        "controls": "← → キー / 画面左右タップで移動"
+      },
+      "links": [
+        {
+          "label": "ソースを見る",
+          "url": "https://github.com/kitaro-03/my-homepage/tree/main/games/sample-dodge",
+          "kind": "github"
+        }
+      ]
+    },
+    {
+      "id": "sample-unity-game",
+      "title": "（サンプル）Unity製ゲーム",
+      "summary": "itch.io で公開しているUnity製ゲームを想定したサンプル項目です。重いゲームは埋め込まず、外部サイトへのリンクだけにします。",
+      "type": "link",
+      "year": "2026",
+      "status": "sample",
+      "tags": ["Unity", "C#", "3D"],
+      "thumbnail": "",
+      "links": [
+        {
+          "label": "itch.io で遊ぶ",
+          "url": "https://itch.io/",
+          "kind": "itch",
+          "primary": true
+        }
+      ]
+    },
+    {
+      "id": "sample-android-app",
+      "title": "（サンプル）Androidアプリ",
+      "summary": "Google Play で配信しているアプリを想定したサンプル項目です。ストアページへ誘導します。",
+      "type": "link",
+      "year": "2026",
+      "status": "sample",
+      "tags": ["Android", "Kotlin"],
+      "thumbnail": "",
+      "links": [
+        {
+          "label": "Google Play で見る",
+          "url": "https://play.google.com/store/apps",
+          "kind": "googleplay",
+          "primary": true
+        },
+        {
+          "label": "紹介記事",
+          "url": "blog/",
+          "kind": "blog"
+        }
+      ]
+    }
+  ]
+}

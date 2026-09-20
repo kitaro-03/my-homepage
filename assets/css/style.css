@@ -1,0 +1,517 @@
+/* ==========================================================================
+   ポートフォリオサイト 共通スタイル
+   - ビルド不要の素のCSS。カスタムプロパティで色とサイズを一元管理する
+   - 広告枠は .ad-slot として構造だけ用意してある（中身は空でよい）
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. デザイントークン
+   -------------------------------------------------------------------------- */
+:root {
+  --bg:            #0e1117;
+  --bg-elevated:   #161b23;
+  --bg-sunken:     #0a0d12;
+  --border:        #262d38;
+  --border-strong: #38414f;
+  --text:          #e6edf3;
+  --text-muted:    #9aa7b5;
+  --text-faint:    #6b7783;
+  --accent:        #4f9cf9;
+  --accent-strong: #2b7ce0;
+  --accent-soft:   rgba(79, 156, 249, 0.12);
+  --warn:          #f0a500;
+
+  --radius:    14px;
+  --radius-sm: 8px;
+
+  --shadow:    0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.28);
+
+  /* レイアウト幅 */
+  --content-max: 1080px;   /* 本文カラムの最大幅 */
+  --rail-width:  160px;    /* 左右の広告レールの幅（160x600 スカイスクレイパー想定） */
+  --gutter:      20px;
+
+  --font: system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN",
+          "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
+}
+
+/* OSがライトモードのときは配色を差し替える */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:            #f6f8fa;
+    --bg-elevated:   #ffffff;
+    --bg-sunken:     #eaeef2;
+    --border:        #d8dee4;
+    --border-strong: #bcc4cc;
+    --text:          #1f2328;
+    --text-muted:    #5a6570;
+    --text-faint:    #848d97;
+    --accent:        #0969da;
+    --accent-strong: #0550ae;
+    --accent-soft:   rgba(9, 105, 218, 0.08);
+    --shadow:        0 1px 2px rgba(31, 35, 40, 0.08), 0 8px 24px rgba(31, 35, 40, 0.08);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. リセットと基本
+   -------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.75;
+  -webkit-text-size-adjust: 100%;
+}
+
+img { max-width: 100%; display: block; }
+
+a { color: var(--accent); }
+a:hover { color: var(--accent-strong); }
+
+h1, h2, h3 { line-height: 1.35; margin: 0 0 0.6em; letter-spacing: 0.01em; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.7rem); }
+h2 { font-size: clamp(1.35rem, 3.4vw, 1.75rem); }
+h3 { font-size: 1.1rem; }
+p  { margin: 0 0 1em; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* スクリーンリーダー専用テキスト */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* キーボード操作時だけ現れる「本文へスキップ」リンク */
+.skip-link {
+  position: absolute; top: -100px; left: 8px; z-index: 100;
+  padding: 10px 16px; border-radius: var(--radius-sm);
+  background: var(--accent); color: #fff; text-decoration: none;
+}
+.skip-link:focus { top: 8px; }
+
+/* --------------------------------------------------------------------------
+   3. ページ骨格（← ここが広告スペースの確保にあたる）
+
+   画面を [左レール][本文][右レール] の3カラムグリッドにする。
+   レールは広告専用の余白で、本文カラムの幅には影響しない。
+   1280px 未満では左右レールを 0 幅にして、本文だけの1カラムに畳む。
+   -------------------------------------------------------------------------- */
+.shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: center;
+  gap: 0 24px;
+  padding: 0 var(--gutter);
+}
+
+@media (min-width: 1280px) {
+  .shell {
+    grid-template-columns: var(--rail-width) minmax(0, var(--content-max)) var(--rail-width);
+  }
+}
+
+.shell__main { min-width: 0; }  /* grid内で子要素がはみ出すのを防ぐ */
+
+.rail { display: none; }
+
+@media (min-width: 1280px) {
+  .rail { display: block; }
+  .rail__inner {
+    position: sticky;
+    top: 24px;   /* スクロールしても追従する */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. 広告スロット
+
+   方針:
+   - 今は中身が空。AdSense のタグを入れるまでは高さ 0 で畳まれ、
+     レイアウトに穴が空かないようにしてある
+   - 中身が入ると自然に高さが出る
+   - URL に ?ads=debug を付けると枠線付きのプレースホルダとして可視化される
+     （確保した位置を目で確認するための開発用モード）
+   -------------------------------------------------------------------------- */
+.ad-slot {
+  /* 空のときは完全に畳む */
+  margin: 0;
+  text-align: center;
+  overflow: hidden;
+}
+
+.ad-slot:not(:empty) {
+  margin: 28px auto;
+  max-width: 100%;
+}
+
+.ad-slot--top:not(:empty)    { margin-top: 20px; }
+.ad-slot--bottom:not(:empty) { margin-bottom: 20px; }
+
+/* サイドレールの枠は 160x600 を想定 */
+.ad-slot--side { max-width: var(--rail-width); }
+
+/* AdSense の ins タグがはみ出さないように */
+.ad-slot ins,
+.ad-slot iframe { max-width: 100%; }
+
+/* --- 開発用の可視化モード（?ads=debug） --- */
+.ads-debug .ad-slot {
+  display: grid;
+  place-items: center;
+  margin: 28px auto;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: repeating-linear-gradient(
+    45deg, transparent, transparent 8px,
+    rgba(127, 127, 127, 0.06) 8px, rgba(127, 127, 127, 0.06) 16px);
+  color: var(--text-faint);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+.ads-debug .ad-slot::after {
+  content: attr(data-ad-label);
+}
+.ads-debug .ad-slot--top,
+.ads-debug .ad-slot--bottom { min-height: 90px; }
+.ads-debug .ad-slot--side   { min-height: 600px; }
+
+/* --------------------------------------------------------------------------
+   5. ヘッダー
+   -------------------------------------------------------------------------- */
+.site-header {
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header__inner {
+  max-width: calc(var(--content-max) + var(--rail-width) * 2 + 48px);
+  margin: 0 auto;
+  padding: 12px var(--gutter);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+}
+
+.site-logo {
+  font-weight: 700; font-size: 1.05rem; letter-spacing: 0.02em;
+  color: var(--text); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.site-logo__mark {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent), #9b5cf6);
+  display: grid; place-items: center;
+  color: #fff; font-size: 0.8rem; font-weight: 800;
+}
+
+.site-nav {
+  display: flex; gap: 4px;
+  flex-wrap: nowrap;          /* 折り返して高さが増えるのを防ぐ */
+  overflow-x: auto;           /* 入りきらない場合は横スクロール */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.site-nav::-webkit-scrollbar { display: none; }
+.site-nav a { white-space: nowrap; }
+
+/* 補助的なリンクは狭い画面では隠す（ページ先頭へのアンカーなので実害がない） */
+@media (max-width: 719px) {
+  .site-nav .is-optional { display: none; }
+}
+.site-nav a {
+  padding: 6px 12px; border-radius: 999px;
+  color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
+}
+.site-nav a:hover { background: var(--accent-soft); color: var(--accent); }
+.site-nav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+
+/* --------------------------------------------------------------------------
+   6. ヒーロー（自己紹介）
+   -------------------------------------------------------------------------- */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  align-items: center;
+  padding: 56px 0 40px;
+}
+@media (min-width: 720px) {
+  .hero { grid-template-columns: minmax(0, 1fr) 200px; gap: 40px; }
+}
+
+.hero__eyebrow {
+  display: inline-block;
+  margin-bottom: 14px; padding: 4px 12px;
+  border: 1px solid var(--border-strong); border-radius: 999px;
+  color: var(--text-muted); font-size: 0.78rem; letter-spacing: 0.08em;
+}
+.hero__title { margin-bottom: 0.4em; }
+.hero__title em {
+  font-style: normal;
+  background: linear-gradient(120deg, var(--accent), #9b5cf6);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+.hero__lead { color: var(--text-muted); font-size: 1.02rem; max-width: 60ch; }
+
+.hero__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+
+.hero__avatar {
+  width: 160px; height: 160px; margin: 0 auto;
+  border-radius: 24px; border: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--accent-soft), var(--bg-elevated));
+  display: grid; place-items: center;
+  font-size: 3.2rem; font-weight: 800; color: var(--accent);
+  overflow: hidden;
+}
+.hero__avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 技術スタックのタグ列 */
+.skill-list {
+  list-style: none; display: flex; flex-wrap: wrap; gap: 8px;
+  margin: 24px 0 0; padding: 0;
+}
+.skill-list li {
+  padding: 4px 11px; border-radius: 999px;
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 0.82rem;
+}
+
+/* --------------------------------------------------------------------------
+   7. ボタン
+   -------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 17px; border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elevated); color: var(--text);
+  font-size: 0.9rem; font-weight: 600; font-family: inherit;
+  text-decoration: none; cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, transform 0.08s;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+
+.btn--primary {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+.btn--primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+
+.btn--ghost { background: transparent; }
+.btn--sm { padding: 6px 13px; font-size: 0.84rem; }
+.btn__icon { flex: none; width: 15px; height: 15px; }
+
+/* --------------------------------------------------------------------------
+   8. セクション共通
+   -------------------------------------------------------------------------- */
+.section { padding: 44px 0; }
+.section__head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px; margin-bottom: 8px;
+}
+.section__title { margin: 0; }
+.section__desc { color: var(--text-muted); margin: 0 0 24px; font-size: 0.94rem; }
+
+hr.divider { border: 0; border-top: 1px solid var(--border); margin: 0; }
+
+/* --------------------------------------------------------------------------
+   9. 制作物カード（data/works.json から自動生成される部分）
+   -------------------------------------------------------------------------- */
+.works-filter {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px;
+}
+.works-filter button[aria-pressed="true"] {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+
+.works-grid {
+  display: grid; gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  list-style: none; margin: 0; padding: 0;
+}
+
+.work-card {
+  display: flex; flex-direction: column;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.work-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.work-card__thumb {
+  aspect-ratio: 16 / 9;
+  background: var(--bg-sunken);
+  position: relative; overflow: hidden;
+  display: grid; place-items: center;
+}
+.work-card__thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* サムネ画像がないときの自動生成プレースホルダ（作品タイトルの頭文字） */
+.work-card__thumb--auto {
+  font-size: 2.6rem; font-weight: 800; color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.work-card__badges {
+  position: absolute; top: 10px; left: 10px;
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.badge {
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+  background: rgba(10, 13, 18, 0.72); color: #fff;
+  backdrop-filter: blur(4px);
+}
+.badge--playable { background: rgba(35, 160, 100, 0.92); }
+.badge--link     { background: rgba(90, 100, 115, 0.92); }
+.badge--wip      { background: rgba(240, 165, 0, 0.92); color: #201800; }
+.badge--sample   { background: rgba(120, 90, 200, 0.92); }
+
+.work-card__body { padding: 16px 18px 18px; display: flex; flex-direction: column; flex: 1; }
+.work-card__title { margin: 0 0 6px; font-size: 1.08rem; }
+.work-card__meta { color: var(--text-faint); font-size: 0.78rem; margin: 0 0 10px; }
+.work-card__summary {
+  color: var(--text-muted); font-size: 0.9rem; margin: 0 0 14px; flex: 1;
+}
+
+.tag-list { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; padding: 0; }
+.tag-list li {
+  font-size: 0.73rem; padding: 2px 9px; border-radius: 999px;
+  background: var(--bg-sunken); color: var(--text-faint);
+  border: 1px solid var(--border);
+}
+
+.work-card__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+
+/* 読み込み中・エラー時の表示 */
+.works-status {
+  padding: 28px; text-align: center; color: var(--text-muted);
+  border: 1px dashed var(--border); border-radius: var(--radius);
+}
+.works-status--error { color: var(--warn); border-color: var(--warn); }
+
+/* 読み込み中のスケルトン */
+.skeleton-card {
+  height: 320px; border-radius: var(--radius);
+  background: linear-gradient(100deg, var(--bg-elevated) 30%, var(--bg-sunken) 50%, var(--bg-elevated) 70%);
+  background-size: 250% 100%;
+  animation: skeleton 1.4s ease-in-out infinite;
+}
+@keyframes skeleton { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+
+/* --------------------------------------------------------------------------
+   10. ゲーム埋め込みダイアログ
+
+   ★ 重要: この中には広告を一切置かない。
+     操作エリアの中に広告があると誤タップの原因になり、
+     AdSense のポリシー上も問題になるため、構造的に分離してある。
+   -------------------------------------------------------------------------- */
+.game-dialog {
+  width: min(96vw, 1000px);
+  max-height: 92vh;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  color: var(--text);
+  overflow: hidden;
+}
+.game-dialog::backdrop { background: rgba(4, 6, 10, 0.78); backdrop-filter: blur(3px); }
+
+.game-dialog__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+}
+.game-dialog__title { margin: 0; font-size: 1rem; }
+
+.game-dialog__stage {
+  background: #000;
+  display: grid;
+  place-items: center;
+}
+.game-dialog__stage iframe {
+  width: 100%;
+  /* 高さの上限だけを掛けると比率が崩れるので、
+     works.js が比率から算出した幅の上限 (--embed-max-width) を併用する */
+  max-width: var(--embed-max-width, none);
+  aspect-ratio: var(--embed-aspect, 16 / 9);
+  border: 0;
+  display: block;
+  margin-inline: auto;
+}
+
+.game-dialog__foot {
+  padding: 10px 16px; border-top: 1px solid var(--border);
+  color: var(--text-faint); font-size: 0.82rem;
+  display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between;
+}
+
+.icon-btn {
+  border: 1px solid var(--border-strong); background: transparent;
+  color: var(--text-muted); border-radius: var(--radius-sm);
+  width: 32px; height: 32px; display: grid; place-items: center;
+  cursor: pointer; font-size: 1.1rem; line-height: 1; font-family: inherit;
+}
+.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* --------------------------------------------------------------------------
+   11. ブログ・お知らせの小さなリスト
+   -------------------------------------------------------------------------- */
+.post-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.post-list a {
+  display: grid; grid-template-columns: 1fr; gap: 2px;
+  padding: 14px 16px; border-radius: var(--radius-sm);
+  text-decoration: none; color: var(--text);
+}
+@media (min-width: 640px) {
+  .post-list a { grid-template-columns: 110px 1fr; gap: 16px; align-items: baseline; }
+}
+.post-list a:hover { background: var(--bg-elevated); }
+.post-list time { color: var(--text-faint); font-size: 0.82rem; font-variant-numeric: tabular-nums; }
+.post-list span { font-weight: 600; }
+
+/* --------------------------------------------------------------------------
+   12. フッター
+   -------------------------------------------------------------------------- */
+.site-footer {
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+  padding: 28px var(--gutter) 40px;
+  color: var(--text-faint); font-size: 0.85rem;
+  text-align: center;
+}
+.site-footer nav { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+.site-footer a { color: var(--text-muted); text-decoration: none; }
+.site-footer a:hover { color: var(--accent); }
+
+/* --------------------------------------------------------------------------
+   13. 動きを減らす設定への配慮
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

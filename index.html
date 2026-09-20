@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kitaro — 制作物とデブログ</title>
+<meta name="description" content="個人開発の制作物とその開発ブログをまとめたポートフォリオサイトです。ブラウザで遊べるミニゲームや、Unity・Androidアプリを公開しています。">
+
+<!-- OGP: SNSでシェアされたときの表示 -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kitaro — 制作物と開発ブログ">
+<meta property="og:description" content="個人開発の制作物とその開発ブログをまとめたポートフォリオサイトです。">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234f9cf9'/><text x='16' y='23' font-size='19' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>K</text></svg>">
+<link rel="stylesheet" href="assets/css/style.css">
+
+<!-- ▼ AdSense を導入するときは、このコメントを外して ca-pub-XXXX を差し替える
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+-->
+
+<script>
+  // URL に ?ads=debug を付けると、広告枠の位置を点線で可視化する（開発用）
+  if (location.search.includes('ads=debug')) document.documentElement.classList.add('ads-debug');
+</script>
+</head>
+
+<body>
+<a class="skip-link" href="#main">本文へスキップ</a>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="site-logo" href="./">
+      <span class="site-logo__mark" aria-hidden="true">K</span>
+      <span>kitaro.dev</span>
+    </a>
+    <nav class="site-nav" aria-label="サイト内">
+      <a href="./" aria-current="page">ホーム</a>
+      <a href="#works">制作物</a>
+      <a href="blog/">ブログ</a>
+      <a href="#about" class="is-optional">このサイトについて</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ==========================================================================
+     広告スペースについて
+
+     このページは [左レール][本文][右レール] の3カラム構成になっていて、
+     左右レールと本文の上下に、それぞれ空の広告枠 (.ad-slot) を置いてある。
+     枠は中身が空のあいだ高さ0で畳まれるので、今の見た目には影響しない。
+
+     AdSense を入れるときは、各 .ad-slot の中に <ins class="adsbygoogle"> を
+     貼るだけでよい。HTMLの構造を変える必要はない。
+
+     ★ ゲームのプレイ画面（#game-dialog の中）には広告枠を置いていない。
+       操作エリア内の広告は誤タップを誘発するため、意図的に分離している。
+     ========================================================================== -->
+
+<div class="shell">
+
+  <!-- 左レール広告（画面幅1280px以上でのみ表示。160x600 想定） -->
+  <aside class="rail" aria-hidden="true">
+    <div class="rail__inner">
+      <div class="ad-slot ad-slot--side" data-ad-slot="side-left" data-ad-label="広告 160x600">
+        <!-- AdSense: 左サイド -->
+      </div>
+    </div>
+  </aside>
+
+  <main class="shell__main" id="main">
+
+    <!-- 上部バナー広告（728x90 / レスポンシブ想定） -->
+    <div class="ad-slot ad-slot--top" data-ad-slot="top" data-ad-label="広告 728x90">
+      <!-- AdSense: ヘッダー下 -->
+    </div>
+
+    <!-- ====================== 自己紹介 ====================== -->
+    <section class="hero" id="about">
+      <div>
+        <span class="hero__eyebrow">個人開発 / ゲームとアプリ</span>
+        <h1 class="hero__title">つくったものを、<br><em>置いておく場所</em>。</h1>
+        <p class="hero__lead">
+          <!-- TODO: ここを自分の紹介文に差し替える -->
+          こんにちは、Kitaro です。ブラウザで動く小さなゲームから、Unity 製のゲーム、
+          Android アプリまで、興味の向くままに個人開発をしています。
+          このサイトでは、作ったものの一覧と、その過程で考えたことを書いた開発ブログを公開しています。
+        </p>
+        <ul class="skill-list">
+          <!-- TODO: 使っている技術に差し替える -->
+          <li>JavaScript</li>
+          <li>Unity / C#</li>
+          <li>Android / Kotlin</li>
+          <li>Python</li>
+        </ul>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#works">制作物を見る</a>
+          <a class="btn" href="blog/">開発ブログ</a>
+          <a class="btn btn--ghost" href="https://github.com/kitaro-03" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+      <!-- プロフィール画像を置くならここ: <img src="assets/img/avatar.png" alt="プロフィール画像"> -->
+      <div class="hero__avatar" aria-hidden="true">K</div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ====================== 制作物一覧 ====================== -->
+    <section class="section" id="works">
+      <div class="section__head">
+        <h2 class="section__title">制作物</h2>
+        <span id="works-count" class="work-card__meta" aria-live="polite"></span>
+      </div>
+      <p class="section__desc">
+        一覧は <code>data/works.json</code> から自動生成しています。
+        「ブラウザで遊べる」ものはこのページ内でそのまま起動できます。
+      </p>
+
+      <div class="works-filter" id="works-filter" role="group" aria-label="制作物の絞り込み">
+        <button type="button" class="btn btn--sm" data-filter="all"   aria-pressed="true">すべて</button>
+        <button type="button" class="btn btn--sm" data-filter="embed" aria-pressed="false">ブラウザで遊べる</button>
+        <button type="button" class="btn btn--sm" data-filter="link"  aria-pressed="false">外部で公開中</button>
+      </div>
+
+      <!-- ↓ この中身は assets/js/works.js が組み立てる -->
+      <ul class="works-grid" id="works-grid"></ul>
+      <p class="works-status" id="works-status">制作物を読み込んでいます…</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ====================== 最新の記事 ====================== -->
+    <section class="section" id="latest-posts">
+      <div class="section__head">
+        <h2 class="section__title">最近書いたもの</h2>
+        <a class="btn btn--sm btn--ghost" href="blog/">記事一覧へ</a>
+      </div>
+      <p class="section__desc">開発の進捗や、詰まったところの記録を書いています。</p>
+      <ul class="post-list">
+        <li>
+          <a href="blog/">
+            <time datetime="2026-09-20">2026-09-20</time>
+            <span>このサイトを作りはじめました</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 下部バナー広告（フッター直前） -->
+    <div class="ad-slot ad-slot--bottom" data-ad-slot="bottom" data-ad-label="広告 728x90">
+      <!-- AdSense: フッター上 -->
+    </div>
+
+  </main>
+
+  <!-- 右レール広告 -->
+  <aside class="rail" aria-hidden="true">
+    <div class="rail__inner">
+      <div class="ad-slot ad-slot--side" data-ad-slot="side-right" data-ad-label="広告 160x600">
+        <!-- AdSense: 右サイド -->
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /.shell -->
+
+<footer class="site-footer">
+  <nav aria-label="フッター">
+    <a href="./">ホーム</a>
+    <a href="#works">制作物</a>
+    <a href="blog/">ブログ</a>
+    <a href="https://github.com/kitaro-03" target="_blank" rel="noopener noreferrer">GitHub</a>
+  </nav>
+  <p>&copy; 2026 Kitaro</p>
+</footer>
+
+<!-- ==========================================================================
+     ゲーム埋め込み用ダイアログ
+     type: "embed" の作品の「ここで遊ぶ」で開く。
+     ★ この中に広告は置かない（操作エリアと広告を分離するため）
+     ========================================================================== -->
+<dialog class="game-dialog" id="game-dialog" aria-labelledby="game-dialog-title">
+  <div class="game-dialog__head">
+    <h2 class="game-dialog__title" id="game-dialog-title">ゲーム</h2>
+    <button type="button" class="icon-btn" id="game-dialog-close" aria-label="閉じる">×</button>
+  </div>
+  <!-- iframe は works.js が開くたびに生成・破棄する -->
+  <div class="game-dialog__stage" id="game-dialog-stage"></div>
+  <div class="game-dialog__foot">
+    <span id="game-dialog-hint"></span>
+    <a class="btn btn--sm btn--ghost" id="game-dialog-open" href="#" target="_blank" rel="noopener noreferrer">別タブで開く ↗</a>
+  </div>
+</dialog>
+
+<script src="assets/js/works.js" defer></script>
+</body>
+</html>
