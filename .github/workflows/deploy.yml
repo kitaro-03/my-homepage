@@ -1,0 +1,64 @@
+# Markdown の記事をHTMLに変換してから、GitHub Pages に公開する。
+#
+# トリガー: main への push（手動実行も可）
+# 公開設定: リポジトリの Settings > Pages > Source を「GitHub Actions」にしておく必要がある。
+
+name: Build and deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 公開は同時に1つだけ。走っている途中で新しい push が来たら、古い方を打ち切る。
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリを取得
+        uses: actions/checkout@v4
+
+      - name: Python を用意
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 依存をインストール
+        run: pip install markdown
+
+      - name: 制作物データ(works.json)の構文チェック
+        run: python3 -c "import json; json.load(open('data/works.json')); print('works.json OK')"
+
+      - name: ブログをビルド（Markdown -> HTML）
+        run: python3 tools/build_blog.py
+
+      - name: 公開するファイルだけを _site に集める
+        run: python3 tools/collect_site.py
+
+      - name: Pages の設定を読み込む
+        uses: actions/configure-pages@v5
+
+      - name: 成果物をアップロード
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages へ公開
+        id: deployment
+        uses: actions/deploy-pages@v4

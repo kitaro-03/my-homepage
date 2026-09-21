@@ -3,17 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kitaro — 制作物とデブログ</title>
-<meta name="description" content="個人開発の制作物とその開発ブログをまとめたポートフォリオサイトです。ブラウザで遊べるミニゲームや、Unity・Androidアプリを公開しています。">
 
-<!-- OGP: SNSでシェアされたときの表示 -->
+<!-- ▼ 名前は仮置きです。差し替えるときは README の「名前を差し替える場所」を参照 -->
+<title>Kitaro の制作物置き場</title>
+<meta name="description" content="個人で制作しているゲーム・アプリ・Webサービスをまとめている場所です。ブラウザでそのまま遊べるものもあります。">
+
 <meta property="og:type" content="website">
-<meta property="og:title" content="Kitaro — 制作物と開発ブログ">
-<meta property="og:description" content="個人開発の制作物とその開発ブログをまとめたポートフォリオサイトです。">
+<meta property="og:title" content="Kitaro の制作物置き場">
+<meta property="og:description" content="個人で制作しているゲーム・アプリ・Webサービスをまとめている場所です。">
 <meta property="og:locale" content="ja_JP">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234f9cf9'/><text x='16' y='23' font-size='19' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>K</text></svg>">
+<link rel="icon" href="assets/img/favicon.svg">
 <link rel="stylesheet" href="assets/css/style.css">
 
 <!-- ▼ AdSense を導入するときは、このコメントを外して ca-pub-XXXX を差し替える
@@ -33,13 +34,13 @@
   <div class="site-header__inner">
     <a class="site-logo" href="./">
       <span class="site-logo__mark" aria-hidden="true">K</span>
-      <span>kitaro.dev</span>
+      <span>制作物置き場</span>
     </a>
     <nav class="site-nav" aria-label="サイト内">
       <a href="./" aria-current="page">ホーム</a>
       <a href="#works">制作物</a>
       <a href="blog/">ブログ</a>
-      <a href="#about" class="is-optional">このサイトについて</a>
+      <a href="#env" class="is-optional">制作環境</a>
     </nav>
   </div>
 </header>
@@ -79,28 +80,35 @@
     <!-- ====================== 自己紹介 ====================== -->
     <section class="hero" id="about">
       <div>
-        <span class="hero__eyebrow">個人開発 / ゲームとアプリ</span>
-        <h1 class="hero__title">つくったものを、<br><em>置いておく場所</em>。</h1>
+        <!-- ▼ 名前は仮置き -->
+        <h1 class="hero__title">Kitaro の<br><em>制作物置き場</em>。</h1>
         <p class="hero__lead">
-          <!-- TODO: ここを自分の紹介文に差し替える -->
-          こんにちは、Kitaro です。ブラウザで動く小さなゲームから、Unity 製のゲーム、
-          Android アプリまで、興味の向くままに個人開発をしています。
-          このサイトでは、作ったものの一覧と、その過程で考えたことを書いた開発ブログを公開しています。
+          個人で制作しているゲーム・アプリ・Webサービスをまとめている場所です。
+          ブラウザでそのまま遊べるものは、このページ内で起動できます。
         </p>
-        <ul class="skill-list">
-          <!-- TODO: 使っている技術に差し替える -->
-          <li>JavaScript</li>
-          <li>Unity / C#</li>
-          <li>Android / Kotlin</li>
-          <li>Python</li>
-        </ul>
+
         <div class="hero__actions">
           <a class="btn btn--primary" href="#works">制作物を見る</a>
           <a class="btn" href="blog/">開発ブログ</a>
+          <!-- ▼ GitHubのユーザー名を差し替える -->
           <a class="btn btn--ghost" href="https://github.com/kitaro-03" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
+
+        <!-- ==================================================================
+             制作環境
+             項目を増やすときは <dt>見出し</dt><dd>内容</dd> を1組足すだけ。
+             ================================================================== -->
+        <section class="env-block" id="env" aria-labelledby="env-title">
+          <h2 class="env-block__title" id="env-title">制作環境</h2>
+          <dl class="env-list">
+            <dt>AI</dt>
+            <dd>ChatGPT / Claude / Claude Code</dd>
+            <dt>ゲームエンジン</dt>
+            <dd>Unity</dd>
+          </dl>
+        </section>
       </div>
-      <!-- プロフィール画像を置くならここ: <img src="assets/img/avatar.png" alt="プロフィール画像"> -->
+      <!-- プロフィール画像を置くならここ: <img src="assets/img/avatar.png" alt=""> -->
       <div class="hero__avatar" aria-hidden="true">K</div>
     </section>
 
@@ -130,21 +138,17 @@
 
     <hr class="divider">
 
-    <!-- ====================== 最新の記事 ====================== -->
+    <!-- ====================== 最新の記事 ======================
+         中身は data/posts.json（tools/build_blog.py が生成）から差し込む。
+         記事本文そのものは blog/posts/<slug>/ に静的HTMLとして出力されている。 -->
     <section class="section" id="latest-posts">
       <div class="section__head">
         <h2 class="section__title">最近書いたもの</h2>
         <a class="btn btn--sm btn--ghost" href="blog/">記事一覧へ</a>
       </div>
       <p class="section__desc">開発の進捗や、詰まったところの記録を書いています。</p>
-      <ul class="post-list">
-        <li>
-          <a href="blog/">
-            <time datetime="2026-09-20">2026-09-20</time>
-            <span>このサイトを作りはじめました</span>
-          </a>
-        </li>
-      </ul>
+      <ul class="post-list" id="posts-list"></ul>
+      <p class="works-status" id="posts-status" hidden></p>
     </section>
 
     <!-- 下部バナー広告（フッター直前） -->
@@ -170,8 +174,9 @@
     <a href="./">ホーム</a>
     <a href="#works">制作物</a>
     <a href="blog/">ブログ</a>
-    <a href="https://github.com/kitaro-03" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a href="#env">制作環境</a>
   </nav>
+  <!-- ▼ 名前は仮置き -->
   <p>&copy; 2026 Kitaro</p>
 </footer>
 
@@ -194,5 +199,6 @@
 </dialog>
 
 <script src="assets/js/works.js" defer></script>
+<script src="assets/js/posts.js" defer></script>
 </body>
 </html>

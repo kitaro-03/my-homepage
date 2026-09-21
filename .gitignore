@@ -1,0 +1,13 @@
+# tools/build_blog.py が生成するもの。
+# ビルドのたびに作り直されるため、Gitでは管理しない。
+# （公開時は GitHub Actions がビルドしてから配信する）
+/blog/index.html
+/blog/posts/
+/data/posts.json
+
+# ローカルの公開用ディレクトリ
+/_site/
+
+__pycache__/
+*.pyc
+.DS_Store

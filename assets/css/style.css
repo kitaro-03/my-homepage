@@ -488,7 +488,11 @@ hr.divider { border: 0; border-top: 1px solid var(--border); margin: 0; }
 }
 .post-list a:hover { background: var(--bg-elevated); }
 .post-list time { color: var(--text-faint); font-size: 0.82rem; font-variant-numeric: tabular-nums; }
-.post-list span { font-weight: 600; }
+.post-list__title { display: block; font-weight: 600; }
+.post-list__summary {
+  display: block; margin-top: 3px;
+  color: var(--text-muted); font-size: 0.86rem; line-height: 1.6;
+}
 
 /* --------------------------------------------------------------------------
    12. フッター
@@ -515,3 +519,106 @@ hr.divider { border: 0; border-top: 1px solid var(--border); margin: 0; }
     transition-duration: 0.001ms !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   14. ブログ記事の本文
+
+   Markdown から変換された HTML が入る場所。
+   見出し・コード・表・引用など、markdown が出す要素をひととおり整える。
+   -------------------------------------------------------------------------- */
+.article { padding: 40px 0 8px; max-width: 46rem; }
+
+.article__head { margin-bottom: 32px; }
+.article__meta {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--text-faint); font-size: 0.84rem; margin: 0 0 10px;
+}
+.article__meta a { color: var(--text-muted); text-decoration: none; }
+.article__meta a:hover { color: var(--accent); }
+.article__title { margin: 0 0 12px; font-size: clamp(1.6rem, 4.2vw, 2.2rem); }
+
+.article__body { font-size: 1rem; }
+.article__body > *:first-child { margin-top: 0; }
+
+.article__body h2 {
+  margin: 2.2em 0 0.7em; padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--border);
+  font-size: 1.35rem;
+}
+.article__body h3 { margin: 1.8em 0 0.6em; font-size: 1.12rem; }
+
+.article__body ul,
+.article__body ol { padding-left: 1.4em; margin: 0 0 1.2em; }
+.article__body li { margin-bottom: 0.35em; }
+
+.article__body a { text-underline-offset: 3px; }
+
+.article__body blockquote {
+  margin: 1.4em 0; padding: 2px 0 2px 16px;
+  border-left: 3px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+/* インラインコード */
+.article__body code {
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.1em 0.4em;
+  font-size: 0.88em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* コードブロック */
+.article__body pre {
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin: 0 0 1.4em;
+  line-height: 1.65;
+}
+.article__body pre code {
+  background: none; border: 0; padding: 0; font-size: 0.86rem;
+}
+
+.article__body table {
+  width: 100%; border-collapse: collapse; margin: 0 0 1.4em;
+  font-size: 0.92rem; display: block; overflow-x: auto;
+}
+.article__body th,
+.article__body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+.article__body th { background: var(--bg-sunken); font-weight: 700; }
+
+.article__body img { border-radius: var(--radius-sm); margin: 0 0 1.4em; }
+
+.article__body hr { border: 0; border-top: 1px solid var(--border); margin: 2em 0; }
+
+.article__nav {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between;
+  margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--border);
+}
+.article__back { margin: 20px 0 0; }
+
+/* --------------------------------------------------------------------------
+   15. 制作環境（自己紹介の下に置く小さな一覧）
+   -------------------------------------------------------------------------- */
+.env-block {
+  margin: 28px 0 0; padding: 16px 18px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg-elevated);
+  max-width: 34rem;
+}
+.env-block__title {
+  margin: 0 0 10px; font-size: 0.82rem; font-weight: 700;
+  color: var(--text-faint); letter-spacing: 0.08em;
+}
+.env-list { margin: 0; display: grid; gap: 8px; font-size: 0.88rem; }
+@media (min-width: 480px) {
+  .env-list { grid-template-columns: auto 1fr; align-items: baseline; }
+}
+.env-list dt {
+  color: var(--text-faint); font-size: 0.82rem; white-space: nowrap;
+}
+.env-list dd { margin: 0; color: var(--text-muted); }

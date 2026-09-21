@@ -1,28 +1,37 @@
 <!DOCTYPE html>
+<!-- このファイルは tools/build_blog.py が生成しています。直接編集しないでください。
+     見た目を変えるときは tools/templates/blog-index.html を編集してビルドし直します。 -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>開発ブログ — kitaro.dev</title>
+<title>開発ブログ — {{SITE_NAME}}</title>
 <meta name="description" content="個人開発の進捗や、技術的に詰まったところの記録。">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234f9cf9'/><text x='16' y='23' font-size='19' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>K</text></svg>">
-<link rel="stylesheet" href="../assets/css/style.css">
+<meta property="og:type" content="website">
+<meta property="og:title" content="開発ブログ — {{SITE_NAME}}">
+<meta property="og:locale" content="ja_JP">
+<link rel="icon" href="{{ROOT}}assets/img/favicon.svg">
+<link rel="stylesheet" href="{{ROOT}}assets/css/style.css">
+
+<!-- ▼ AdSense を導入するときは index.html と同じタグをここにも入れる -->
+
 <script>
   if (location.search.includes('ads=debug')) document.documentElement.classList.add('ads-debug');
 </script>
 </head>
+
 <body>
 <a class="skip-link" href="#main">本文へスキップ</a>
 
 <header class="site-header">
   <div class="site-header__inner">
-    <a class="site-logo" href="../">
+    <a class="site-logo" href="{{ROOT}}">
       <span class="site-logo__mark" aria-hidden="true">K</span>
-      <span>kitaro.dev</span>
+      <span>{{SITE_SHORT}}</span>
     </a>
     <nav class="site-nav" aria-label="サイト内">
-      <a href="../">ホーム</a>
-      <a href="../#works">制作物</a>
+      <a href="{{ROOT}}">ホーム</a>
+      <a href="{{ROOT}}#works">制作物</a>
       <a href="./" aria-current="page">ブログ</a>
     </nav>
   </div>
@@ -39,22 +48,13 @@
     <div class="ad-slot ad-slot--top" data-ad-slot="top" data-ad-label="広告 728x90"></div>
 
     <section class="section">
-      <div class="section__head"><h1 class="section__title">開発ブログ</h1></div>
-      <p class="section__desc">開発の進捗や、技術的に詰まったところの記録を置いていきます。</p>
+      <div class="section__head">
+        <h1 class="section__title">開発ブログ</h1>
+        <span class="work-card__meta">{{POST_COUNT}} 件</span>
+      </div>
+      <p class="section__desc">開発の進捗や、技術的に詰まったところの記録を置いています。</p>
 
-      <!-- TODO: 記事一覧は data/posts.json からの自動生成に置き換える予定 -->
-      <ul class="post-list">
-        <li>
-          <a href="./">
-            <time datetime="2026-09-20">2026-09-20</time>
-            <span>このサイトを作りはじめました（記事は準備中）</span>
-          </a>
-        </li>
-      </ul>
-
-      <p class="works-status" style="margin-top:24px">
-        ブログ機能はこれから作ります。まずはトップページの制作物一覧から整備中です。
-      </p>
+      {{POST_LIST}}
     </section>
 
     <div class="ad-slot ad-slot--bottom" data-ad-slot="bottom" data-ad-label="広告 728x90"></div>
@@ -69,11 +69,12 @@
 
 <footer class="site-footer">
   <nav aria-label="フッター">
-    <a href="../">ホーム</a>
-    <a href="../#works">制作物</a>
+    <a href="{{ROOT}}">ホーム</a>
+    <a href="{{ROOT}}#works">制作物</a>
     <a href="./">ブログ</a>
+    <a href="{{ROOT}}#env">制作環境</a>
   </nav>
-  <p>&copy; 2026 Kitaro</p>
+  <p>&copy; {{YEAR}} {{AUTHOR}}</p>
 </footer>
 </body>
 </html>
