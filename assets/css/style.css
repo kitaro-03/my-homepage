@@ -58,6 +58,11 @@
    -------------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
 
+/* hidden 属性を確実に効かせる。
+   .work-card { display: flex } のような指定は、ブラウザ標準の
+   [hidden] { display: none } より優先度が高く、打ち消してしまうため。 */
+[hidden] { display: none !important; }
+
 html { scroll-behavior: smooth; }
 
 body {

@@ -57,11 +57,21 @@ HTML には一切触りません。
 
 ## 編集後の確認
 
-JSON はカンマ1つで全体が読み込めなくなります。編集したら必ず構文チェックを。
+カードはビルド時にHTMLとして生成されます。編集したらビルドして確認してください。
 
 ```bash
-python3 -c "import json;json.load(open('data/works.json'));print('OK')"
+python3 tools/build.py
 ```
 
-読み込みに失敗した場合、トップページには「制作物リストを読み込めませんでした」という
-エラーメッセージが出ます（真っ白にはなりません）。
+JSON はカンマ1つで全体が読み込めなくなりますが、その場合はビルドが
+エラーで止まります。**壊れたまま公開されることはありません。**
+
+```
+data/works.json の書式が不正です: Expecting ',' delimiter: line 7 column 7
+works[0]: 'title' が必要です
+works[2]: id 'foo' が重複しています
+works[1]: type が embed なら embed.src が必要です
+```
+
+`id` はカードのURL（`#work-xxx`）とサムネの自動配色に使われるので、
+他と重複しない値にしてください。

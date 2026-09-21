@@ -9,16 +9,34 @@ GitHub Pages で公開します。
 
 ## 1. 全体の考え方
 
-ページによって「いつHTMLを作るか」を変えています。
+**ページのHTMLは、すべて公開前（ビルド時）に組み立てます。**
+配信される `index.html` や記事ページには、作品名・説明・本文が
+最初から文字として入っています。
 
-| 部分 | HTMLを作るタイミング | 理由 |
-|------|---------------------|------|
-| ブログ記事の本文 | **公開前（ビルド時）** | 本文が配信HTMLに文字として入っている必要がある。検索エンジンや広告審査に中身を確実に読ませるため |
-| 制作物カード | 表示時（ブラウザ） | `works.json` を1件足すだけで反映させたいから |
-| 最新記事のリンク一覧 | 表示時（ブラウザ） | リンクが数行あるだけで、中身の評価に関わらないため |
+| 部分 | どこから作られるか |
+|------|-------------------|
+| ブログ記事の本文・一覧 | `blog/_posts/*.md` |
+| 制作物カード | `data/works.json` |
+| トップの最新記事リンク | `blog/_posts/*.md` |
 
-ブログ本文だけは「JSで後から差し込む」方式を避けています。
-自分のブラウザでは正しく見えても、配信されているHTMLは空、という状態になるためです。
+JavaScript が担当するのは、**絞り込み**と**ゲームのページ内起動**だけです。
+どちらも生成済みのHTMLを操作するだけなので、JavaScript が動かなくても
+カードは表示され、「ここで遊ぶ」はゲームページへの普通のリンクとして機能します。
+
+### なぜ表示時生成をやめたか
+
+当初は `works.json` をブラウザが読んでカードを組み立てていました。
+「JSONを編集すれば即座に反映される」利点があると考えたためですが、これは誤りでした。
+
+Pages の配信元を GitHub Actions にした時点で、`works.json` 自体も
+**Actions が集めた成果物として配信される**ようになります。つまり `main` で
+JSONを編集しても、配信されるJSONが入れ替わるのは Actions の完了後です。
+「ブラウザが実行時に読む」ことと「そのファイルがサーバーに届く」ことは別で、
+反映速度はどちらの方式でも変わりません。
+
+利点が無い以上、配信HTMLに中身が入る方を選ばない理由がないため、
+ビルド時生成に統一しました。副作用としてJavaScriptも短くなっています
+（カード組み立ての処理が不要になったため）。
 
 ### なぜ Jekyll ではなく GitHub Actions なのか
 
@@ -43,7 +61,7 @@ GitHub Pages には Jekyll（Markdownを変換する仕組み）が内蔵され�
 
 ```
 .
-├── index.html              トップページ（自己紹介＋制作物一覧）※手書き
+├── index.html              トップページ ※手書き。カードの差し込み位置に目印がある
 ├── data/
 │   ├── works.json          ★ 制作物の一覧データ。ここを編集する
 │   └── README.md           works.json の書き方
@@ -53,29 +71,37 @@ GitHub Pages には Jekyll（Markdownを変換する仕組み）が内蔵され�
 │   └── sample-dodge/       埋め込み用ミニゲーム（type: embed のサンプル）
 ├── assets/
 │   ├── css/style.css       全ページ共通のスタイル
-│   ├── js/works.js         works.json を読んでカードを生成する
-│   ├── js/posts.js         posts.json を読んで最新記事リンクを出す
+│   ├── js/works.js         絞り込みとゲーム起動（カード生成はしない）
 │   └── img/                画像を置く場所
 ├── tools/
-│   ├── build_blog.py       Markdown -> HTML 変換
-│   ├── collect_site.py     公開するファイルだけを _site に集める
+│   ├── build.py            ★ ビルドの入口。これ1つを実行する
+│   ├── config.py           ★ サイト名・著者名などの設定
+│   ├── build_blog.py       Markdown -> HTML
+│   ├── build_works.py      works.json -> カードHTML
 │   └── templates/          記事ページ・記事一覧のHTMLテンプレート
 ├── .github/workflows/deploy.yml   ビルドして Pages に公開する
 └── .nojekyll
 ```
 
-### ビルドで生成されるもの（Git管理外）
+### 生成物はリポジトリに置かない
 
-`.gitignore` に入れてあり、リポジトリには存在しません。
+ビルドの出力は `_site/` だけです（`.gitignore` 済み）。
+「手で書いたファイル」と「生成されたファイル」が混ざらないようにしてあります。
+公開されるのも `_site/` の中身だけで、記事の `.md` 原稿・`tools/`・README は含まれません。
 
+### index.html の目印
+
+`index.html` は手書きのまま保たれ、ビルドはこの目印を置き換えた結果を
+`_site/index.html` に書き出します（元ファイルは書き換えません）。
+
+```html
+<ul class="works-grid" id="works-grid">
+  <!-- BUILD:WORKS -->        ← 制作物カードが入る
+</ul>
 ```
-blog/index.html                記事一覧
-blog/posts/<slug>/index.html   個別記事
-data/posts.json                トップページの最新記事リンク用
-_site/                         公開されるファイル一式
-```
 
----
+目印は `BUILD:WORKS` / `BUILD:POSTS` / `BUILD:WORKS_COUNT` の3つ。
+**消すとビルドが失敗します**（気づかず公開されるのを防ぐため、わざと止めています）。
 
 ## 3. 記事を書く
 
@@ -123,15 +149,14 @@ summary: 一覧に出る短い説明（省略すると本文の冒頭から自�
 
 | ファイル | 箇所 |
 |----------|------|
+| `tools/config.py` | `SITE_NAME` / `SITE_SHORT` / `AUTHOR` / `GITHUB_USER` / `COPYRIGHT_YEAR` |
 | `index.html` | `<title>` / `og:title` / `<h1>` / ヘッダーのロゴ / フッターの著作権表記 / GitHubリンク |
-| `tools/build_blog.py` | 冒頭の `SITE_NAME` / `SITE_SHORT` / `AUTHOR` / `COPYRIGHT_YEAR` |
 
 `index.html` の該当箇所には `<!-- ▼ 名前は仮置き -->` というコメントを入れてあります。
+（`tools/config.py` はブログ側のページで使われます）
 
 **制作環境の記載**は `index.html` の `<section class="env-block" id="env">` にあります。
 `<dt>見出し</dt><dd>内容</dd>` を1組足すだけで項目が増えます。
-
----
 
 ## 6. 広告（Google AdSense）を入れる
 
@@ -174,28 +199,25 @@ URL に `?ads=debug` を付けると点線で可視化されます。
 
 ## 7. 手元で確認する
 
-```bash
-pip install markdown          # 最初の1回だけ
-python3 tools/build_blog.py   # Markdown -> HTML
-python3 -m http.server 8000   # http://localhost:8000/
-```
-
-`file://` で直接開くとJSONを読み込めないので、必ず簡易サーバー経由で開いてください。
-
-公開されるファイル一式をそのまま確認したいときは:
+ビルドは1コマンドです。公開されるものと完全に同じ `_site/` ができます。
 
 ```bash
-python3 tools/build_blog.py && python3 tools/collect_site.py
+pip install markdown        # 最初の1回だけ
+python3 tools/build.py      # -> _site/ に出力
 cd _site && python3 -m http.server 8000
+# http://localhost:8000/
 ```
 
-JSON を編集したら構文チェックを:
+`index.html` をそのまま開いてもカードは出ません（目印のままなので）。
+確認は必ず `_site` 側を見てください。
 
-```bash
-python3 -c "import json;json.load(open('data/works.json'));print('OK')"
+データが壊れているときは、ビルドがエラーで止まります。
+公開されるのはビルドが成功したときだけなので、壊れたまま公開されることはありません。
+
 ```
-
----
+works[0]: 'title' が必要です
+data/works.json の書式が不正です: Expecting ',' delimiter: line 7 column 7
+```
 
 ## 8. GitHub Pages の設定（最初の1回だけ）
 
@@ -211,7 +233,6 @@ python3 -c "import json;json.load(open('data/works.json'));print('OK')"
 
 ## 9. これから作る予定
 
-- [ ] 制作物カードもビルド時にHTML化するか検討（現状は表示時に生成）
 - [ ] RSS / sitemap.xml の出力
 - [ ] サムネイル画像の用意（今は頭文字の自動プレースホルダ）
 - [ ] 記事へのタグ別一覧ページ

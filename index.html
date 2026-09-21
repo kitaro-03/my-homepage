@@ -118,7 +118,7 @@
     <section class="section" id="works">
       <div class="section__head">
         <h2 class="section__title">制作物</h2>
-        <span id="works-count" class="work-card__meta" aria-live="polite"></span>
+        <span id="works-count" class="work-card__meta" aria-live="polite"><!-- BUILD:WORKS_COUNT --></span>
       </div>
       <p class="section__desc">
         一覧は <code>data/works.json</code> から自動生成しています。
@@ -131,24 +131,28 @@
         <button type="button" class="btn btn--sm" data-filter="link"  aria-pressed="false">外部で公開中</button>
       </div>
 
-      <!-- ↓ この中身は assets/js/works.js が組み立てる -->
-      <ul class="works-grid" id="works-grid"></ul>
-      <p class="works-status" id="works-status">制作物を読み込んでいます…</p>
+      <!-- ↓ カードは data/works.json からビルド時に差し込まれる（tools/build_works.py）。
+           この目印を消すとビルドが失敗するので、消さないこと。 -->
+      <ul class="works-grid" id="works-grid">
+        <!-- BUILD:WORKS -->
+      </ul>
+      <p class="works-status" id="works-status" hidden></p>
     </section>
 
     <hr class="divider">
 
     <!-- ====================== 最新の記事 ======================
-         中身は data/posts.json（tools/build_blog.py が生成）から差し込む。
-         記事本文そのものは blog/posts/<slug>/ に静的HTMLとして出力されている。 -->
+         リンク一覧はビルド時に差し込まれる（tools/build_blog.py）。
+         記事本文そのものは blog/posts/<slug>/ に静的HTMLとして出力される。 -->
     <section class="section" id="latest-posts">
       <div class="section__head">
         <h2 class="section__title">最近書いたもの</h2>
         <a class="btn btn--sm btn--ghost" href="blog/">記事一覧へ</a>
       </div>
       <p class="section__desc">開発の進捗や、詰まったところの記録を書いています。</p>
-      <ul class="post-list" id="posts-list"></ul>
-      <p class="works-status" id="posts-status" hidden></p>
+      <ul class="post-list" id="posts-list">
+        <!-- BUILD:POSTS -->
+      </ul>
     </section>
 
     <!-- 下部バナー広告（フッター直前） -->
@@ -199,6 +203,5 @@
 </dialog>
 
 <script src="assets/js/works.js" defer></script>
-<script src="assets/js/posts.js" defer></script>
 </body>
 </html>

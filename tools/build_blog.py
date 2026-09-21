@@ -1,66 +1,40 @@
 #!/usr/bin/env python3
 """
-blog/_posts/*.md を読んで、記事ページと記事一覧をHTMLとして書き出す。
+blog/_posts/*.md を読んで、記事ページと記事一覧のHTMLを組み立てる。
 
 なぜビルドするのか:
   ブログ本文は「配信されるHTMLの中に文字として入っている」必要がある。
   JavaScriptで後から差し込む方式だと、クローラや審査の環境によっては
   中身が空のページとして読まれてしまうため。
 
-生成物（いずれもGit管理外。ビルドで作り直される）:
-  blog/index.html            記事一覧
-  blog/posts/<slug>/index.html  個別記事
-  data/posts.json            トップページの「最近書いたもの」用
-
-使い方:
-  pip install markdown
-  python3 tools/build_blog.py
+このファイルは tools/build.py から呼ばれるモジュール。単体では実行しない。
 """
 
 from __future__ import annotations
 
 import html
-import json
 import re
-import shutil
 import sys
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
+
+import config
 
 try:
     import markdown
 except ImportError:
     sys.exit("markdown がありません。`pip install markdown` を実行してください。")
 
-
-# ---------------------------------------------------------------------------
-# サイト設定  ★ 名前などを変えたいときはここを編集する
-# ---------------------------------------------------------------------------
-SITE_NAME = "Kitaro の制作物置き場"   # 仮置きの名前
-SITE_SHORT = "制作物置き場"            # ヘッダーのロゴに出す短い名前
-AUTHOR = "Kitaro"                      # 仮置きの名前
-COPYRIGHT_YEAR = "2026"
-
-TEASER_COUNT = 5   # トップページに出す最新記事の件数
-
-
-# ---------------------------------------------------------------------------
-# パス
-# ---------------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent.parent
 POSTS_SRC = ROOT / "blog" / "_posts"
-POSTS_OUT = ROOT / "blog" / "posts"
-BLOG_INDEX_OUT = ROOT / "blog" / "index.html"
-POSTS_JSON_OUT = ROOT / "data" / "posts.json"
 TEMPLATES = Path(__file__).resolve().parent / "templates"
 
 FILENAME_RE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})-(.+)$")
 
+MD_EXTENSIONS = ["fenced_code", "tables", "sane_lists", "nl2br", "attr_list"]
 
-# ---------------------------------------------------------------------------
-# 記事
-# ---------------------------------------------------------------------------
+
 @dataclass
 class Post:
     slug: str
@@ -69,7 +43,6 @@ class Post:
     summary: str
     tags: list[str] = field(default_factory=list)
     body_html: str = ""
-    draft: bool = False
 
     @property
     def url(self) -> str:
@@ -85,6 +58,9 @@ class Post:
         return self.published.strftime("%Y年%m月%d日")
 
 
+# ---------------------------------------------------------------------------
+# 原稿の読み込み
+# ---------------------------------------------------------------------------
 def parse_front_matter(text: str) -> tuple[dict[str, str], str]:
     """
     先頭の --- ... --- を key: value の辞書として取り出す。
@@ -152,10 +128,7 @@ def load_post(path: Path) -> Post | None:
         print(f"  - {path.name} は下書きなのでスキップ")
         return None
 
-    converter = markdown.Markdown(
-        extensions=["fenced_code", "tables", "sane_lists", "nl2br", "attr_list"]
-    )
-
+    converter = markdown.Markdown(extensions=MD_EXTENSIONS)
     return Post(
         slug=slug,
         title=meta.get("title") or slug,
@@ -166,17 +139,37 @@ def load_post(path: Path) -> Post | None:
     )
 
 
+def load_posts() -> list[Post]:
+    if not POSTS_SRC.is_dir():
+        sys.exit(f"{POSTS_SRC} がありません。")
+
+    posts: list[Post] = []
+    for path in sorted(POSTS_SRC.glob("*.md")):
+        post = load_post(path)
+        if post:
+            posts.append(post)
+            print(f"  + {path.name} -> {post.url}")
+
+    posts.sort(key=lambda p: (p.published, p.slug), reverse=True)
+
+    slugs = [p.slug for p in posts]
+    duplicates = {s for s in slugs if slugs.count(s) > 1}
+    if duplicates:
+        sys.exit(f"記事のURL(slug)が重複しています: {duplicates}")
+    return posts
+
+
 # ---------------------------------------------------------------------------
-# テンプレート
+# HTMLの生成
 # ---------------------------------------------------------------------------
 def render(template_name: str, values: dict[str, str]) -> str:
     """{{KEY}} を values[KEY] に置き換えるだけの、ごく単純なテンプレート。"""
     text = (TEMPLATES / template_name).read_text(encoding="utf-8")
     for key, value in values.items():
         text = text.replace("{{" + key + "}}", value)
-    leftover = re.findall(r"\{\{[A-Z_]+\}\}", text)
+    leftover = set(re.findall(r"\{\{[A-Z_]+\}\}", text))
     if leftover:
-        print(f"  ! {template_name}: 未置換のプレースホルダ {set(leftover)}")
+        sys.exit(f"{template_name}: 未置換のプレースホルダが残っています {leftover}")
     return text
 
 
@@ -191,14 +184,14 @@ def common_values(root_prefix: str) -> dict[str, str]:
     """全テンプレート共通の値。root_prefix はサイトルートへの相対パス。"""
     return {
         "ROOT": root_prefix,
-        "SITE_NAME": html.escape(SITE_NAME),
-        "SITE_SHORT": html.escape(SITE_SHORT),
-        "AUTHOR": html.escape(AUTHOR),
-        "YEAR": COPYRIGHT_YEAR,
+        "SITE_NAME": html.escape(config.SITE_NAME),
+        "SITE_SHORT": html.escape(config.SITE_SHORT),
+        "AUTHOR": html.escape(config.AUTHOR),
+        "YEAR": config.COPYRIGHT_YEAR,
     }
 
 
-def build_post_page(post: Post, newer: Post | None, older: Post | None) -> None:
+def post_page(post: Post, newer: Post | None, older: Post | None) -> str:
     nav = []
     if newer:
         nav.append(f'<a class="btn btn--sm btn--ghost" href="../{newer.slug}/">← {html.escape(newer.title)}</a>')
@@ -215,18 +208,15 @@ def build_post_page(post: Post, newer: Post | None, older: Post | None) -> None:
         "CONTENT": post.body_html,
         "POST_NAV": "".join(nav),
     })
-
-    out_dir = POSTS_OUT / post.slug
-    out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "index.html").write_text(render("post.html", values), encoding="utf-8")
+    return render("post.html", values)
 
 
-def build_blog_index(posts: list[Post]) -> None:
+def blog_index_page(posts: list[Post]) -> str:
     if posts:
         rows = "\n".join(
             f'        <li><a href="posts/{p.slug}/">'
             f'<time datetime="{p.date_iso}">{p.date_iso}</time>'
-            f"<span><span class=\"post-list__title\">{html.escape(p.title)}</span>"
+            f'<span><span class="post-list__title">{html.escape(p.title)}</span>'
             f'<span class="post-list__summary">{html.escape(p.summary)}</span></span>'
             "</a></li>"
             for p in posts
@@ -237,61 +227,30 @@ def build_blog_index(posts: list[Post]) -> None:
 
     values = common_values("../")
     values.update({"POST_LIST": list_html, "POST_COUNT": str(len(posts))})
-    BLOG_INDEX_OUT.write_text(render("blog-index.html", values), encoding="utf-8")
+    return render("blog-index.html", values)
 
 
-def build_posts_json(posts: list[Post]) -> None:
-    """トップページの「最近書いたもの」が読む一覧。"""
-    data = {
-        "$comment": "tools/build_blog.py が生成します。直接編集しないでください。",
-        "posts": [
-            {"title": p.title, "url": p.url, "date": p.date_iso,
-             "summary": p.summary, "tags": p.tags}
-            for p in posts[:TEASER_COUNT]
-        ],
-    }
-    POSTS_JSON_OUT.write_text(
-        json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
-
-
-# ---------------------------------------------------------------------------
-def main() -> int:
-    if not POSTS_SRC.is_dir():
-        sys.exit(f"{POSTS_SRC} がありません。")
-
-    print(f"記事を読み込み中: {POSTS_SRC}")
-    posts: list[Post] = []
-    for path in sorted(POSTS_SRC.glob("*.md")):
-        post = load_post(path)
-        if post:
-            posts.append(post)
-            print(f"  + {path.name} -> {post.url}")
-
-    # 新しい順
-    posts.sort(key=lambda p: (p.published, p.slug), reverse=True)
-
-    slugs = [p.slug for p in posts]
-    duplicates = {s for s in slugs if slugs.count(s) > 1}
-    if duplicates:
-        sys.exit(f"slug が重複しています: {duplicates}")
-
-    # 生成物は毎回作り直す（消した記事が残らないように）
-    if POSTS_OUT.exists():
-        shutil.rmtree(POSTS_OUT)
-    POSTS_OUT.mkdir(parents=True, exist_ok=True)
-
+def build(site: Path, posts: list[Post]) -> None:
+    """記事ページと記事一覧を site 以下に書き出す。"""
     for i, post in enumerate(posts):
         newer = posts[i - 1] if i > 0 else None
         older = posts[i + 1] if i + 1 < len(posts) else None
-        build_post_page(post, newer, older)
+        out_dir = site / "blog" / "posts" / post.slug
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "index.html").write_text(post_page(post, newer, older), encoding="utf-8")
 
-    build_blog_index(posts)
-    build_posts_json(posts)
-
-    print(f"完了: 記事 {len(posts)} 件")
-    return 0
+    blog_dir = site / "blog"
+    blog_dir.mkdir(parents=True, exist_ok=True)
+    (blog_dir / "index.html").write_text(blog_index_page(posts), encoding="utf-8")
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+def teaser_html(posts: list[Post]) -> str:
+    """トップページの「最近書いたもの」に差し込むリスト。"""
+    if not posts:
+        return '<li><span class="work-card__meta">まだ記事がありません。</span></li>'
+    return "\n        ".join(
+        f'<li><a href="{p.url}">'
+        f'<time datetime="{p.date_iso}">{p.date_iso}</time>'
+        f'<span class="post-list__title">{html.escape(p.title)}</span></a></li>'
+        for p in posts[: config.TEASER_COUNT]
+    )

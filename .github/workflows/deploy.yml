@@ -35,14 +35,11 @@ jobs:
       - name: 依存をインストール
         run: pip install markdown
 
-      - name: 制作物データ(works.json)の構文チェック
-        run: python3 -c "import json; json.load(open('data/works.json')); print('works.json OK')"
-
-      - name: ブログをビルド（Markdown -> HTML）
-        run: python3 tools/build_blog.py
-
-      - name: 公開するファイルだけを _site に集める
-        run: python3 tools/collect_site.py
+      # data/works.json と blog/_posts/*.md からHTMLを生成し、
+      # 公開するファイルだけを _site に集める。
+      # データが壊れていればここで止まるので、壊れたまま公開されることはない。
+      - name: サイトをビルド
+        run: python3 tools/build.py
 
       - name: Pages の設定を読み込む
         uses: actions/configure-pages@v5
