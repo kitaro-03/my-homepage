@@ -14,14 +14,7 @@
         "src": "games/sample-dodge/index.html",
         "aspect": "4 / 3",
         "controls": "← → キー / 画面左右タップで移動"
-      },
-      "links": [
-        {
-          "label": "ソースを見る",
-          "url": "https://github.com/kitaro-03/my-homepage/tree/main/games/sample-dodge",
-          "kind": "github"
-        }
-      ]
+      }
     },
     {
       "id": "sample-unity-game",
