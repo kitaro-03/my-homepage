@@ -2,6 +2,20 @@
   "$comment": "制作物の一覧。新しい作品はこの works 配列に1件追加するだけでトップページのカードが増えます。スキーマの説明は data/README.md を参照。",
   "works": [
     {
+      "id": "ad-play",
+      "title": "広告のゲーム — 全14本",
+      "summary": "数字ゲート、ピン抜き、色分け、採集、村づくり。広告で見かける遊びをもとにした、14本のオリジナルブラウザゲーム集です。",
+      "type": "embed",
+      "year": "2026",
+      "tags": ["JavaScript", "Canvas", "ゲーム集"],
+      "thumbnail": "",
+      "embed": {
+        "src": "games/ad-play/index.html",
+        "aspect": "4 / 3",
+        "controls": "クリック・タップ／矢印・WASDなど。操作は各ゲーム内で案内します。大きく表示する場合は「別タブで開く」を利用できます。"
+      }
+    },
+    {
       "id": "sample-dodge",
       "title": "Dodge Sample",
       "summary": "落ちてくるブロックをよけるだけの小さなブラウザゲーム。埋め込み表示（type: embed）の動作確認用サンプルです。",
